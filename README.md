@@ -44,3 +44,8 @@ If you want to test on the testnet, do the following:
 8. run `truffle console --network testnet`
 9. interact with the contracts via [web3](https://github.com/ethereum/wiki/wiki/JavaScript-API)
 
+Or just use our existing contracts on the testnet:
+
+Multisig Wallet: 0x90321a0b97ee9cdf78c2428ae826b8a0e6c7af8a
+
+Lunyr Token: 0x6c6c2747e3753654f7654b566888417c135fe9cc

@@ -84,8 +84,8 @@ contract LunyrToken is SafeMath, ERC20 {
     bool public finalizedCrowdfunding = false;
     uint256 public fundingStartBlock; // crowdsale start block
     uint256 public fundingEndBlock; // crowdsale end block
-    uint256 public constant tokensPerEther = 10; // LUN:ETH exchange rate
-    uint256 public constant tokenCreationMax = safeMul(800000 ether, tokensPerEther);
+    uint256 public constant tokensPerEther = 20; // LUN:ETH exchange rate
+    uint256 public constant tokenCreationMax = safeMul(550000 ether, tokensPerEther);
     uint256 public constant tokenCreationMin = safeMul(30000 ether, tokensPerEther);
     // for testing on testnet
     //uint256 public constant tokenCreationMax = safeMul(10 ether, tokensPerEther);
