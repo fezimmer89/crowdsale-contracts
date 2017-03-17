@@ -144,8 +144,8 @@ contract MultiSigWallet {
 
     /// @dev Allows to replace an owner with a new owner. Transaction has to be sent by wallet.
     /// @param owner Address of owner to be replaced.
-    /// @param owner Address of new owner.
-    function replaceOwner(address owner, address newOwner)
+    /// @param newOwner Address of new owner.
+    /*function replaceOwner(address owner, address newOwner)
         public
         onlyWallet
         ownerExists(owner)
@@ -160,7 +160,27 @@ contract MultiSigWallet {
         isOwner[newOwner] = true;
         OwnerRemoval(owner);
         OwnerAddition(newOwner);
+    }*/
+
+
+    /// @dev Allows to replace an owner with a new owner. Transaction has to be sent by wallet.
+    /// @param owner Address of owner to be replaced.
+    /// @param newOwner Address of new owner.
+    /// @param index the indx of the owner to be replaced
+    function replaceOwnerIndexed(address owner, address newOwner, uint index)
+        public
+        onlyWallet
+        ownerExists(owner)
+        ownerDoesNotExist(newOwner)
+    {
+        if (owners[index] != owner) throw;
+        owners[index] = newOwner;
+        isOwner[owner] = false;
+        isOwner[newOwner] = true;
+        OwnerRemoval(owner);
+        OwnerAddition(newOwner);
     }
+
 
     /// @dev Allows to change the number of required confirmations. Transaction has to be sent by wallet.
     /// @param _required Number of required confirmations.

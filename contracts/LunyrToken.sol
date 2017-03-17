@@ -7,9 +7,9 @@ import './MultiSigWallet.sol';
 contract UpgradeAgent is SafeMath {
   address public owner;
   bool public isUpgradeAgent;
+  uint256 public originalSupply; // the original total supply of old tokens
   function upgradeFrom(address _from, uint256 _value) public;
   function finalizeUpgrade() public;
-  function setOriginalSupply() public;
 }
 
 /// @title Time-locked vault of tokens allocated to Lunyr after 180 days
@@ -21,8 +21,8 @@ contract LUNVault is SafeMath {
     LunyrToken lunyrToken;
     address lunyrMultisig;
     uint256 unlockedAtBlockNumber;
-    // 1296000 blocks = 6 months * 30 days / month * 24 hours / day * 60 minutes / hour * 60 seconds / minute / 12 seconds per block
-    //uint256 public constant numBlocksLocked = 1296000;
+    // 1296000 blocks = 6 months * 30 days / month * 24 hours / day * 60 minutes / hour * 60 seconds / minute / 14 seconds per block
+    //uint256 public constant numBlocksLocked = 1110857;
     // smaller lock for testing
     uint256 public constant numBlocksLocked = 12;
 
@@ -42,14 +42,10 @@ contract LUNVault is SafeMath {
         if (block.number < unlockedAtBlockNumber) throw;
         // Will fail if allocation (and therefore toTransfer) is 0.
         if (!lunyrToken.transfer(lunyrMultisig, lunyrToken.balanceOf(this))) throw;
-        // Otherwise ether are trapped here, we could disallow payable instead...
-        if (!lunyrMultisig.send(this.balance)) throw;
     }
 
-    // disallow payment after unlock block
-    function () payable {
-        if (block.number >= unlockedAtBlockNumber) throw;
-    }
+    // disallow payment this is for LUN not ether
+    function () { throw; }
 
 }
 
@@ -66,7 +62,7 @@ contract LunyrToken is SafeMath, ERC20 {
     string public constant name = "Lunyr Token";
     string public constant symbol = "LUN";
     uint256 public constant decimals = 18;  // decimal places
-    uint256 public constant endowmentPercentOfTotal = 22;
+    uint256 public constant crowdfundPercentOfTotal = 78;
     uint256 public constant vaultPercentOfTotal = 15;
     uint256 public constant lunyrPercentOfTotal = 7;
     uint256 public constant hundredPercent = 100;
@@ -155,8 +151,7 @@ contract LunyrToken is SafeMath, ERC20 {
         if (getState() != State.Success) throw; // Abort if not in Success state.
         // protect against wrapping uints
         if (balances[from] >= value &&
-            allowed[from][msg.sender] >= value &&
-            safeAdd(balances[to], value) > balances[to])
+            allowed[from][msg.sender] >= value)
         {
             balances[to] = safeAdd(balances[to], value);
             balances[from] = safeSub(balances[from], value);
@@ -215,9 +210,8 @@ contract LunyrToken is SafeMath, ERC20 {
         if (agent == 0x0) throw; // don't set agent to nothing
         if (msg.sender != upgradeMaster) throw; // Only a master can designate the next agent
         upgradeAgent = UpgradeAgent(agent);
-        if (!upgradeAgent.isUpgradeAgent()) throw;
-        // this needs to be called in success condition to guarantee the invariant is true
-        upgradeAgent.setOriginalSupply();
+        // upgradeAgent must be created and linked to LunyrToken after crowdfunding is over
+        if (upgradeAgent.originalSupply() != totalSupply) throw;
         UpgradeAgentSet(upgradeAgent);
     }
 
@@ -249,7 +243,7 @@ contract LunyrToken is SafeMath, ERC20 {
     // Crowdfunding:
 
     // don't just send ether to the contract expecting to get tokens
-    function() payable { throw; }
+    function() { throw; }
 
 
     /// @notice Create tokens when funding is active.
@@ -267,11 +261,11 @@ contract LunyrToken is SafeMath, ERC20 {
         // multiply by exchange rate to get newly created token amount
         uint256 createdTokens = safeMul(msg.value, tokensPerEther);
 
-        // don't go over the limit!
-        if (safeAdd(createdTokens, totalSupply) > tokenCreationMax) throw;
-
         // we are creating tokens, so increase the totalSupply
         totalSupply = safeAdd(totalSupply, createdTokens);
+
+        // don't go over the limit!
+        if (totalSupply > tokenCreationMax) throw;
 
         // Assign new tokens to the sender
         balances[msg.sender] = safeAdd(balances[msg.sender], createdTokens);
@@ -293,20 +287,17 @@ contract LunyrToken is SafeMath, ERC20 {
         // prevent more creation of tokens
         finalizedCrowdfunding = true;
 
-        // Add endowment tokens
-        // totalSupply = totalSupply + endowmentTokens
-        totalSupply = safeDiv(safeMul(totalSupply, hundredPercent), safeSub(hundredPercent, endowmentPercentOfTotal));
-
-        // Now that endowment is added, just take percentages from totalSupply
         // Endowment: 15% of total goes to vault, timelocked for 6 months
-        uint256 vaultTokens = safeDiv(safeMul(totalSupply, vaultPercentOfTotal), hundredPercent);
+        uint256 vaultTokens = safeDiv(safeMul(totalSupply, vaultPercentOfTotal), crowdfundPercentOfTotal);
         balances[timeVault] = safeAdd(balances[timeVault], vaultTokens);
         Transfer(0, timeVault, vaultTokens);
 
         // Endowment: 7% of total goes to lunyr for marketing and bug bounty
-        uint256 lunyrTokens = safeDiv(safeMul(totalSupply, lunyrPercentOfTotal), hundredPercent);
+        uint256 lunyrTokens = safeDiv(safeMul(totalSupply, lunyrPercentOfTotal), crowdfundPercentOfTotal);
         balances[lunyrMultisig] = safeAdd(balances[lunyrMultisig], lunyrTokens);
         Transfer(0, lunyrMultisig, lunyrTokens);
+
+        totalSupply = safeAdd(safeAdd(totalSupply, vaultTokens), lunyrTokens);
 
         // Transfer ETH to the Lunyr Multisig address.
         if (!lunyrMultisig.send(this.balance)) throw;
@@ -333,6 +324,8 @@ contract LunyrToken is SafeMath, ERC20 {
     /// We make it a function and do not assign the result to a variable
     /// So there is no chance of the variable being stale
     function getState() public constant returns (State){
+      // once we reach success, lock in the state
+      if (finalizedCrowdfunding) return State.Success;
       if (block.number < fundingStartBlock) return State.PreFunding;
       else if (block.number <= fundingEndBlock && totalSupply < tokenCreationMax) return State.Funding;
       else if (totalSupply >= tokenCreationMin) return State.Success;

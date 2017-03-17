@@ -33,9 +33,27 @@ contract('MultiSigWallet', function(accounts){
       return wallet.getOwners();
     }).then(function(owners){
       assert.deepEqual(owners, accounts.slice(0,4));
-      functionData = utils.getFunctionEncoding('replaceOwner(address,address)',[
+    //   functionData = utils.getFunctionEncoding('replaceOwner(address,address)',[
+    //     web3.eth.accounts[3],
+    //     web3.eth.accounts[4]
+    //   ]);
+    //   return wallet.submitTransaction(wallet.address, 0, functionData);
+    // }).then(function(receipt){
+    //   assert.equal(receipt.logs.length, 5);
+    //   assert.equal(receipt.logs[0].event,'Submission');
+    //   assert.equal(receipt.logs[1].event,'Confirmation');
+    //   assert.equal(receipt.logs[2].event,'OwnerRemoval');
+    //   assert.equal(receipt.logs[3].event,'OwnerAddition');
+    //   assert.equal(receipt.logs[4].event,'Execution');
+    //   return wallet.getOwners();
+    // }).then(function(owners){
+    //   expected = accounts.slice(0,4);
+    //   expected[3] = accounts[4];
+    //   assert.deepEqual(owners, expected);
+      functionData = utils.getFunctionEncoding('replaceOwnerIndexed(address,address,uint)',[
         web3.eth.accounts[3],
-        web3.eth.accounts[4]
+        web3.eth.accounts[4],
+        3
       ]);
       return wallet.submitTransaction(wallet.address, 0, functionData);
     }).then(function(receipt){
@@ -50,6 +68,7 @@ contract('MultiSigWallet', function(accounts){
       expected = accounts.slice(0,4);
       expected[3] = accounts[4];
       assert.deepEqual(owners, expected);
+
     }).then(done).catch(done);
   });
   it('requires multiple confirmations', function(done){

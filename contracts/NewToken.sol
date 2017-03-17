@@ -117,7 +117,7 @@ contract UpgradeAgent is SafeMath {
         owner = msg.sender;
         isUpgradeAgent = true;
         oldToken = OldToken(_oldToken);
-        //if (!oldToken.isLunyrToken()) throw;
+        originalSupply = oldToken.totalSupply();
     }
 
     /// @notice Check to make sure that the current sum of old and
@@ -132,11 +132,6 @@ contract UpgradeAgent is SafeMath {
         if (safeAdd(oldSupply, newSupply) != safeSub(originalSupply, _value)) throw;
     }
 
-    /// @notice Gets the original token supply in oldToken.
-    /// Called by oldToken after reaching the success state
-    function setOriginalSupply() external {
-        originalSupply = oldToken.totalSupply();
-    }
 
     /// @notice Sets the new token contract address
     /// @param _newToken The address of the new token contract

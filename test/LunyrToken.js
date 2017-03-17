@@ -490,16 +490,9 @@ contract('Crowdsale', function(accounts){
     }).then(done).catch(done);
   });
   it(prefix + 'allows upgrade', function(done) {
-    let startBlock;
-    let endBlock;
-    let upgradeMaster;
-    let newToken;
-    let token;
-    let upgradeAgent;
-    let agentOwner;
-    let tokenMinimum;
-    let upgradeGasEstimate;
-    let finalizeGasEstimate;
+    let startBlock, endBlock, upgradeMaster, newToken, token, upgradeAgent;
+    let agentOwner, tokenMinimum, upgradeGasEstimate, finalizeGasEstimate;
+    let actualSupply;
 
     MultiSigWallet.new(accounts, 3).then(function(wallet){
       upgradeMaster = accounts[0];
@@ -530,7 +523,8 @@ contract('Crowdsale', function(accounts){
       // can't finalizeUpgrade until we set upgradeAgent
       utils.assertThrows(token.finalizeUpgrade({from: upgradeMaster}), 'expected finalizeUpgrade to fail');
     //   functionData = utils.getFunctionEncoding('UpgradeAgent(address)',[token.address]);
-    //   return web3.eth.estimateGas({data:functionData});
+    //   console.log(functionData);
+    //   return web3.eth.estimateGas({ data:functionData});
     // }).then(function(gasEstimate){
     //   console.log('UpgradeAgent constructor cost: ' + gasEstimate);
       return UpgradeAgent.new(token.address, {from: agentOwner});
@@ -555,7 +549,8 @@ contract('Crowdsale', function(accounts){
       assert.equal(balance, 0);
       return upgradeAgent.originalSupply();
     }).then(function(originalSupply){
-      return token.totalSupply().then(function(actualSupply){
+      return token.totalSupply().then(function(_actualSupply){
+        actualSupply = _actualSupply;
         // does the original supply match our known supply? Add endowment
         assert.equal(originalSupply.toNumber(), actualSupply.toNumber());
       });
@@ -573,7 +568,7 @@ contract('Crowdsale', function(accounts){
       functionData = utils.getFunctionEncoding('upgrade(uint256)',[1]);
       return web3.eth.estimateGas({to: token.address, data:functionData});
     }).then(function(gasEstimate){
-      upgradeGasEstimate = gasEstimate + utils.gasEpsilon;
+      upgradeGasEstimate = gasEstimate + 2 * utils.gasEpsilon;
       return token.upgrade(1, {from: accounts[0], gas: upgradeGasEstimate });
     }).then(function(receipt){
       assert.equal(receipt.logs.length, 2);
@@ -586,10 +581,30 @@ contract('Crowdsale', function(accounts){
       utils.assertThrows(token.upgrade(1, {from: accounts[1], gas: upgradeGasEstimate}), 'expected upgrade to fail because too much');
       // can't finalizeUpgrade unless you are upgradeMaster
       utils.assertThrows(token.finalizeUpgrade({from: accounts[1]}), 'expected finalizeUpgrade to fail');
+      return token.getState();
+    }).then(function(state){
+      assert.equal(state, utils.crowdsaleState.SUCCESS);
+      return token.totalSupply();
+    }).then(function(supply){
+      assert.equal(supply.toNumber(), actualSupply.toNumber() - 1);
+      utils.assertThrows(token.refund(), 'expected refund to fail');
+      // transfer should still be enabled
+      return token.transfer(accounts[1], 1, { from:accounts[0] });
+    }).then(function(receipt){
+      // verify transfer event happened and nothing else
+      assert.equal(receipt.logs.length, 1);
+      assert.equal(receipt.logs[0].event, 'Transfer');
+    }).then(function(){
+      return token.balanceOf(accounts[1]);
+    }).then(function(balance){
+      assert.equal(balance.toNumber(), 1);
+      return token.balanceOf(accounts[0]);
+    }).then(function(balance){
+      assert.equal(balance.toNumber(), tokenMinimum.toNumber() - 1);
       functionData = utils.getFunctionEncoding('finalizeUpgrade()',[]);
       return web3.eth.estimateGas({to: token.address, data:functionData});
     }).then(function(gasEstimate){
-      finalizeGasEstimate = gasEstimate + utils.gasEpsilon;
+      finalizeGasEstimate = gasEstimate + 2 * utils.gasEpsilon;
       return token.finalizeUpgrade({from: upgradeMaster, gas: finalizeGasEstimate});
     }).then(function(receipt){
       assert.equal(receipt.logs.length,1);
@@ -598,6 +613,18 @@ contract('Crowdsale', function(accounts){
       utils.assertThrows(token.finalizeUpgrade({from: upgradeMaster}), 'expected finalizeUpgrade to fail');
       // can't upgrade after finalized
       utils.assertThrows(token.upgrade(1, {from: accounts[0], gas: finalizeGasEstimate}), 'expected upgrade to fail finalized');
+      // transfer should still be enabled
+      return token.transfer(accounts[0], 1, { from:accounts[1] });
+    }).then(function(receipt){
+      assert.equal(receipt.logs.length, 1);
+      assert.equal(receipt.logs[0].event, 'Transfer');
+    }).then(function(){
+      return token.balanceOf(accounts[0]);
+    }).then(function(balance){
+      assert.equal(balance.toNumber(), tokenMinimum.toNumber());
+      return token.balanceOf(accounts[1]);
+    }).then(function(balance){
+      assert.equal(balance.toNumber(), 0);
     }).then(done).catch(done);
   });
   it(prefix + 'allows setUpgradeAgent', function(done) {
@@ -605,7 +632,7 @@ contract('Crowdsale', function(accounts){
     let endBlock;
     let upgradeMaster;
     let token;
-    let agentOwner;
+    let agentOwner, gasEstimate;
     MultiSigWallet.new(accounts, 3).then(function(wallet){
       upgradeMaster = accounts[0];
       agentOwner = upgradeMaster;
@@ -627,10 +654,19 @@ contract('Crowdsale', function(accounts){
       utils.mineToBlockHeight(endBlock);
       return token.finalizeCrowdfunding();
     }).then(function(){
-      return UpgradeAgent.new(token.address, {from: agentOwner});
+    //   functionData = utils.getFunctionEncoding('UpgradeAgent(address)',[token.address]);
+    //   return web3.eth.estimateGas({data:functionData});
+    // }).then(function(gasEst){
+    //   gasEstimate = gasEst + 2 * utils.gasEpsilon;
+      gasEstimate = 800000;
+      return UpgradeAgent.new(token.address, {from: agentOwner, gas: gasEstimate});
     }).then(function(agent){
       upgradeAgent = agent;
-      return token.setUpgradeAgent(upgradeAgent.address, {from:upgradeMaster});
+      functionData = utils.getFunctionEncoding('setUpgradeAgent(address)',[upgradeAgent.address]);
+      return web3.eth.estimateGas({to: token.address, data:functionData});
+    }).then(function(gasEst){
+      gasEstimate = 2* gasEst + 2 * utils.gasEpsilon;
+      return token.setUpgradeAgent(upgradeAgent.address, {from:upgradeMaster, gas: gasEstimate});
     }).then(function() {
       return token.upgradeAgent();
     }).then(function(agent){
@@ -784,8 +820,6 @@ contract('Crowdsale', function(accounts){
        return LUNVault.at(vaultAddress);
      }).then(function(v){
        vault = v;
-       return web3.eth.getBalance(wallet.address);
-     }).then(function(balance){
        return token.balanceOf(vault.address);
      }).then(function(lunBalance){
        assert.equal(lunBalance.toNumber(), 0);
@@ -796,11 +830,6 @@ contract('Crowdsale', function(accounts){
        return web3.eth.getBalance(wallet.address);
      }).then(function(balance){
        assert.equal(balance.toNumber(), minWeiForSuccess.toNumber());
-       return web3.eth.sendTransaction({ from:accounts[2], to:vault.address, value: web3.toWei(1, 'ether') });
-     }).then(function(receipt){
-       return web3.eth.getBalance(vault.address);
-     }).then(function(balance){
-       assert.equal(balance, web3.toWei(1, 'ether'));
        return token.balanceOf(vault.address);
      }).then(function(lunBalance){
        return token.totalSupply().then(function(supply){
@@ -813,9 +842,6 @@ contract('Crowdsale', function(accounts){
      }).then(function(){
        // mine to block height to unlock vault
        return utils.mineToBlockHeight(web3.eth.blockNumber + utils.numBlocksLocked);
-     }).then(function(){
-       // payment should be disabled now
-       // return utils.assertThrows(web3.eth.sendTransaction({from:accounts[3], to:vault.address, value: web3.toWei(1, 'ether')}));
      }).then(function(){
        // unlock should be enabled now
        return vault.unlock();
@@ -831,11 +857,12 @@ contract('Crowdsale', function(accounts){
        return web3.eth.getBalance(wallet.address);
      }).then(function(balance){
        // we transfered our eth to the multisig wallet
-       assert.equal(balance.toNumber(), minWeiForSuccess.add(web3.toWei(1, 'ether')).toNumber());
-     }).then(done).catch(function(){
-       console.log('Did you forget to change the lock time in LunyrToken.sol?');
-       assert.fail();
-     });
+       assert.equal(balance.toNumber(), minWeiForSuccess.toNumber());
+     }).then(done).catch(done);
+    //  }).then(done).catch(function(){
+    //    console.log('Did you forget to change the lock time in LunyrToken.sol?');
+    //    assert.fail();
+    //  });
    });
   it(prefix + 'allows totalSupply', function(done) {
     let startBlock = 0;
@@ -897,7 +924,7 @@ contract('Crowdsale', function(accounts){
           return token.transferFrom(accounts[0], accounts[2], 2, {from:accounts[1]});
         }).then(function(receipt){
           assert.equal(receipt.logs.length, 1);
-          assert.equal(receipt.logs[0].event, 'Transfer')
+          assert.equal(receipt.logs[0].event, 'Transfer');
           return token.transferFrom(accounts[0], accounts[2], 2, {from:accounts[1]});
         }).then(function(receipt){
           // this fails because we already depleted our allowance
