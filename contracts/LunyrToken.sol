@@ -8,8 +8,8 @@ contract UpgradeAgent is SafeMath {
   address public owner;
   bool public isUpgradeAgent;
   uint256 public originalSupply; // the original total supply of old tokens
+  bool public upgradeHasBegun;
   function upgradeFrom(address _from, uint256 _value) public;
-  function finalizeUpgrade() public;
 }
 
 /// @title Time-locked vault of tokens allocated to Lunyr after 180 days
@@ -71,7 +71,6 @@ contract LunyrToken is SafeMath, ERC20 {
     mapping (address => mapping (address => uint256)) allowed;
 
     // Upgrade information
-    bool public finalizedUpgrade = false;
     address public upgradeMaster;
     UpgradeAgent public upgradeAgent;
     uint256 public totalUpgraded;
@@ -149,7 +148,6 @@ contract LunyrToken is SafeMath, ERC20 {
     /// @return Whether the transfer was successful or not
     function transferFrom(address from, address to, uint value) returns (bool ok) {
         if (getState() != State.Success) throw; // Abort if not in Success state.
-        // protect against wrapping uints
         if (balances[from] >= value &&
             allowed[from][msg.sender] >= value)
         {
@@ -187,7 +185,6 @@ contract LunyrToken is SafeMath, ERC20 {
     function upgrade(uint256 value) external {
         if (getState() != State.Success) throw; // Abort if not in Success state.
         if (upgradeAgent.owner() == 0x0) throw; // need a real upgradeAgent address
-        if (finalizedUpgrade) throw; // cannot upgrade if finalized
 
         // Validate input value.
         if (value == 0) throw;
@@ -209,6 +206,7 @@ contract LunyrToken is SafeMath, ERC20 {
         if (getState() != State.Success) throw; // Abort if not in Success state.
         if (agent == 0x0) throw; // don't set agent to nothing
         if (msg.sender != upgradeMaster) throw; // Only a master can designate the next agent
+        if (address(upgradeAgent) != 0x0 && upgradeAgent.upgradeHasBegun()) throw; // Don't change the upgrade agent
         upgradeAgent = UpgradeAgent(agent);
         // upgradeAgent must be created and linked to LunyrToken after crowdfunding is over
         if (upgradeAgent.originalSupply() != totalSupply) throw;
@@ -226,18 +224,11 @@ contract LunyrToken is SafeMath, ERC20 {
         upgradeMaster = master;
     }
 
-    /// @notice finalize the upgrade
-    /// @dev Required state: Success
-    function finalizeUpgrade() external {
-        if (getState() != State.Success) throw; // Abort if not in Success state.
-        if (upgradeAgent.owner() == 0x0) throw; // we need a valid upgrade agent
-        if (msg.sender != upgradeMaster) throw; // only upgradeMaster can finalize
-        if (finalizedUpgrade) throw; // can't finalize twice
-
-        finalizedUpgrade = true; // prevent future upgrades
-
-        upgradeAgent.finalizeUpgrade(); // call finalize upgrade on new contract
-        UpgradeFinalized(msg.sender, upgradeAgent);
+    function setMultiSigWallet(address newWallet) external {
+      if (msg.sender != lunyrMultisig) throw;
+      MultiSigWallet wallet = MultiSigWallet(newWallet);
+      if (!wallet.isMultiSigWallet()) throw;
+      lunyrMultisig = newWallet;
     }
 
     // Crowdfunding:
@@ -288,6 +279,7 @@ contract LunyrToken is SafeMath, ERC20 {
         finalizedCrowdfunding = true;
 
         // Endowment: 15% of total goes to vault, timelocked for 6 months
+        // uint256 vaultTokens = safeDiv(safeMul(totalSupply, vaultPercentOfTotal), hundredPercent);
         uint256 vaultTokens = safeDiv(safeMul(totalSupply, vaultPercentOfTotal), crowdfundPercentOfTotal);
         balances[timeVault] = safeAdd(balances[timeVault], vaultTokens);
         Transfer(0, timeVault, vaultTokens);

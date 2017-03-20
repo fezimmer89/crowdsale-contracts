@@ -18,7 +18,6 @@ contract NewToken is ERC20, SafeMath {
     mapping (address => uint256) balances;
     mapping (address => mapping (address => uint256)) allowed;
 
-    bool public upgradeFinalized = false;
 
     // Upgrade information
     address public upgradeAgent;
@@ -33,18 +32,10 @@ contract NewToken is ERC20, SafeMath {
     function createToken(address _target, uint256 _amount) public {
         if (msg.sender != upgradeAgent) throw;
         if (_amount == 0) throw;
-        if (upgradeFinalized) throw;
 
         balances[_target] = safeAdd(balances[_target], _amount);
         totalSupply = safeAdd(totalSupply, _amount);
         Transfer(_target, _target, _amount);
-    }
-
-    function finalizeUpgrade() external {
-        if (msg.sender != upgradeAgent) throw;
-        if (upgradeFinalized) throw;
-        // this prevents createToken from being called after finalized
-        upgradeFinalized = true;
     }
 
     // ERC20 interface: transfer _value new tokens from msg.sender to _to
@@ -103,14 +94,14 @@ contract UpgradeAgent is SafeMath {
 
     // Upgrade information
     bool public upgradeHasBegun = false;
-    bool public upgradeFinalized = false;
     OldToken public oldToken;
     NewToken public newToken;
     uint256 public originalSupply; // the original total supply of old tokens
 
     event NewTokenSet(address token);
     event UpgradeHasBegun();
-    event InvariantCheck(uint oldTokenSupply, uint newTokenSupply, uint originalSupply, uint value);
+    event InvariantCheckFailed(uint oldTokenSupply, uint newTokenSupply, uint originalSupply, uint value);
+    event InvariantCheckPassed(uint oldTokenSupply, uint newTokenSupply, uint originalSupply, uint value);
 
     function UpgradeAgent(address _oldToken) {
         //if (_oldToken == 0x0) throw;
@@ -128,8 +119,11 @@ contract UpgradeAgent is SafeMath {
         if (!newToken.isNewToken()) throw; // Abort if new token contract has not been set
         uint oldSupply = oldToken.totalSupply();
         uint newSupply = newToken.totalSupply();
-        InvariantCheck(oldSupply, newSupply, originalSupply, _value);
-        if (safeAdd(oldSupply, newSupply) != safeSub(originalSupply, _value)) throw;
+        if (safeAdd(oldSupply, newSupply) != safeSub(originalSupply, _value)) {
+          InvariantCheckFailed(oldSupply, newSupply, originalSupply, _value);
+        } else {
+          InvariantCheckPassed(oldSupply, newSupply, originalSupply, _value);
+        }
     }
 
 
@@ -160,7 +154,6 @@ contract UpgradeAgent is SafeMath {
     function upgradeFrom(address _from, uint256 _value) public {
         if (msg.sender != address(oldToken)) throw; // only upgrade from oldToken
         if (!newToken.isNewToken()) throw; // need a real newToken!
-        if (upgradeFinalized) throw; // can't upgrade after being finalized
 
         setUpgradeHasBegun();
         // Right here oldToken has already been updated, but corresponding
@@ -171,17 +164,6 @@ contract UpgradeAgent is SafeMath {
 
         //Right here totalSupply invariant must hold
         safetyInvariantCheck(0);
-    }
-
-    function finalizeUpgrade() external {
-        if (msg.sender != address(oldToken)) throw;
-        if (upgradeFinalized) throw;
-
-        safetyInvariantCheck(0);
-
-        upgradeFinalized = true;
-
-        newToken.finalizeUpgrade();
     }
 
     /// @dev Fallback function allows to deposit ether.

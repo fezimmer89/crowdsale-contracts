@@ -22,6 +22,7 @@ module.exports = {
   gasEpsilon: 5000,
   startBlockMainNet: 3445888,
   endBlockMainNet: 3618688,
+  diffEpsilon: 100,
   multisigWalletAddressMainNet: '0x0',
   afterFee: function(amount, serviceFeeInThousandths) {
     return amount / 1000 * (1000 - serviceFeeInThousandths);

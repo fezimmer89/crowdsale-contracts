@@ -1,5 +1,6 @@
 let utils = require("./utils/utils.js");
 let MultiSigWallet = artifacts.require("./MultiSigWallet.sol");
+let LunyrToken = artifacts.require('LunyrToken');
 
 
 contract('MultiSigWallet', function(accounts){
@@ -181,6 +182,38 @@ contract('MultiSigWallet', function(accounts){
       return wallet.getOwners();
     }).then(function(owners){
       assert.deepEqual(owners, accounts.slice(0,5));
+    }).then(done).catch(done);
+  });
+  it('allows change of wallet', function(done){
+    let wallet, token, newWallet;
+    MultiSigWallet.new(accounts, 2).then(function(instance){
+      wallet = instance;
+      const upgradeMaster = accounts[0];
+      const startBlock = web3.eth.blockNumber + 10;
+      const endBlock = startBlock + 1;
+      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+    }).then(function(instance){
+      token = instance;
+      return MultiSigWallet.new(accounts, 2);
+    }).then(function(instance){
+      newWallet = instance;
+      utils.assertThrows(token.setMultiSigWallet(newWallet.address, {from:accounts[0]}), 'cannot set new wallet from just anywhere');
+      functionData = utils.getFunctionEncoding('setMultiSigWallet(address)', [newWallet.address]);
+      return wallet.submitTransaction(token.address, 0, functionData, { from: accounts[0] });
+    }).then(function(receipt){
+      txid = receipt.logs[0].args.transactionId.toNumber();
+      assert.equal(receipt.logs.length, 2);
+      assert.equal(receipt.logs[0].event,'Submission');
+      assert.equal(receipt.logs[1].event,'Confirmation');
+      return wallet.confirmTransaction(txid, { from: accounts[2] });
+    }).then(function(receipt){
+      assert.equal(receipt.logs.length, 2);
+      assert.equal(receipt.logs[0].event,'Confirmation');
+      assert.equal(receipt.logs[1].event,'Execution');
+      return token.lunyrMultisig();
+    }).then(function(walletAddr){
+      assert.equal(walletAddr, newWallet.address);
+      assert.notEqual(wallet.address, walletAddr);
     }).then(done).catch(done);
   });
 });
