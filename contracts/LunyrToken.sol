@@ -4,9 +4,12 @@ import './ERC20.sol';
 import './SafeMath.sol';
 import './MultiSigWallet.sol';
 
+contract NewToken is ERC20 {}
+
 contract UpgradeAgent is SafeMath {
   address public owner;
   bool public isUpgradeAgent;
+  NewToken public newToken;
   uint256 public originalSupply; // the original total supply of old tokens
   bool public upgradeHasBegun;
   function upgradeFrom(address _from, uint256 _value) public;
@@ -127,6 +130,9 @@ contract LunyrToken is SafeMath, ERC20 {
     /// @return Whether the transfer was successful or not
     function transfer(address to, uint256 value) returns (bool ok) {
         if (getState() != State.Success) throw; // Abort if crowdfunding was not a success.
+        if (to == 0x0) throw;
+        if (to == address(upgradeAgent)) throw;
+        //if (to == address(upgradeAgent.newToken())) throw;
         uint256 senderBalance = balances[msg.sender];
         if (senderBalance >= value && value > 0) {
             senderBalance = safeSub(senderBalance, value);
@@ -148,6 +154,9 @@ contract LunyrToken is SafeMath, ERC20 {
     /// @return Whether the transfer was successful or not
     function transferFrom(address from, address to, uint value) returns (bool ok) {
         if (getState() != State.Success) throw; // Abort if not in Success state.
+        if (to == 0x0) throw;
+        if (to == address(upgradeAgent)) throw;
+        //if (to == address(upgradeAgent.newToken())) throw;
         if (balances[from] >= value &&
             allowed[from][msg.sender] >= value)
         {

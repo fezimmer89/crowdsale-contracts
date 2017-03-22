@@ -18,7 +18,6 @@ contract NewToken is ERC20, SafeMath {
     mapping (address => uint256) balances;
     mapping (address => mapping (address => uint256)) allowed;
 
-
     // Upgrade information
     address public upgradeAgent;
 
@@ -40,6 +39,9 @@ contract NewToken is ERC20, SafeMath {
 
     // ERC20 interface: transfer _value new tokens from msg.sender to _to
     function transfer(address _to, uint256 _value) returns (bool success) {
+        if (_to == 0x0) throw;
+        if (_to == upgradeAgent) throw;
+        //if (_to == address(UpgradeAgent(upgradeAgent).oldToken())) throw;
         if (balances[msg.sender] >= _value && _value > 0) {
             balances[msg.sender] = safeSub(balances[msg.sender], _value);
             balances[_to] = safeAdd(balances[_to], _value);
@@ -50,8 +52,10 @@ contract NewToken is ERC20, SafeMath {
 
     // ERC20 interface: transfer _value new tokens from _from to _to
     function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {
-        //same as above. Replace this line with the following if you want to protect against wrapping uints.
-        if (balances[_from] >= _value && allowed[_from][msg.sender] >= _value && safeAdd(balances[_to], _value) > balances[_to]) {
+        if (_to == 0x0) throw;
+        if (_to == upgradeAgent) throw;
+        //if (_to == address(UpgradeAgent(upgradeAgent).oldToken())) throw;
+        if (balances[_from] >= _value && allowed[_from][msg.sender] >= _value) {
             balances[_to] = safeAdd(balances[_to], _value);
             balances[_from] = safeSub(balances[_from], _value);
             allowed[_from][msg.sender] = safeSub(allowed[_from][msg.sender], _value);
@@ -80,7 +84,7 @@ contract NewToken is ERC20, SafeMath {
     }
 
     /// @dev Fallback function throws to avoid accidentally losing money
-    function() payable { throw; }
+    function() { throw; }
 }
 
 //Test the whole process against this: https://www.kingoftheether.com/contract-safety-checklist.html
@@ -126,7 +130,6 @@ contract UpgradeAgent is SafeMath {
         }
     }
 
-
     /// @notice Sets the new token contract address
     /// @param _newToken The address of the new token contract
     function setNewToken(address _newToken) external {
@@ -166,11 +169,7 @@ contract UpgradeAgent is SafeMath {
         safetyInvariantCheck(0);
     }
 
-    /// @dev Fallback function allows to deposit ether.
-    function() public
-        payable
-    {
-      throw;
-    }
+    /// @dev Fallback function disallows depositing ether.
+    function() { throw; }
 
 }
