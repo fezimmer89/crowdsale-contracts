@@ -1,4 +1,4 @@
-Lunyr Token Address:
+Lunyr Token Address: TO BE ANNOUNCED
 
 ABI (JSON Interface):
 
