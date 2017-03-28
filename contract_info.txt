@@ -3,7 +3,7 @@ Lunyr Token:
 Address:
 
 
-ABI (AKA JSON INTERFACE):
+ABI (JSON INTERFACE):
 [
   {
     "constant": true,
