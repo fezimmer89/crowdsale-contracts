@@ -4,7 +4,8 @@ German: https://github.com/Lunyr/Lunyr/blob/master/Lunyr_Crowdsale_Instructions_
 Russian: https://github.com/Lunyr/Lunyr/blob/master/Lunyr_Crowdsale_Instructions_Parity-Mist-MyEtherWallet_RUS.pdf
 Chinese: In progress
 
-Download Parity: https://parity.io/parity.html
+Download link for Parity: https://parity.io/parity.html
+Download link for Mist: https://github.com/ethereum/mist/releases
 MyEtherWallet: https://myetherwallet.com
 
 Lunyr Token Address: 0xfa05A73FfE78ef8f1a739473e462c54bae6567D9
