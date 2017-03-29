@@ -9,7 +9,7 @@ Download link for Mist: https://github.com/ethereum/mist/releases
 MyEtherWallet: https://myetherwallet.com
 
 Lunyr Token Address: 0xfa05A73FfE78ef8f1a739473e462c54bae6567D9
-Note: The crowdsale does not start until March 29 at approximately 16:00 UTC (Start block number 3,440,760). 
+Note: The crowdsale does not start until March 29 at approximately 16:26 UTC (Start block number 3,440,760). 
 The Lunyr Token contract will not allow any purchases before the launch.
 
 Start Block: 3440760
