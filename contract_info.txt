@@ -4,7 +4,8 @@ German: https://github.com/Lunyr/Lunyr/blob/master/Lunyr_Crowdsale_Instructions_
 Russian: https://github.com/Lunyr/Lunyr/blob/master/Lunyr_Crowdsale_Instructions_Parity-Mist-MyEtherWallet_RUS.pdf
 Chinese: In progress
 
-Download Parity: https://parity.io/
+Download Parity: https://parity.io/parity.html
+MyEtherWallet: https://myetherwallet.com
 
 Lunyr Token Address: 0xfa05A73FfE78ef8f1a739473e462c54bae6567D9
 Note: The crowdsale does not start until March 29 at approximately 16:00 UTC (Start block number 3,440,760). 
