@@ -1,4 +1,5 @@
-Please do not try to send ETH directly to the Lunyr Token address. It will not work. You have to execute create() as explained in the instructions.
+Please do not try to send ETH directly to the Lunyr Token address. It will not work. 
+You have to execute create() as explained in the instructions.
 
 Crowdsale Instructions
 English: https://github.com/Lunyr/Lunyr/blob/master/Lunyr_Crowdsale_Instructions_Parity-Mist-MyEtherWallet.pdf
