@@ -5,7 +5,7 @@ Crowdsale Instructions
 English: https://github.com/Lunyr/Lunyr/blob/master/Lunyr_Crowdsale_Instructions_Parity-Mist-MyEtherWallet.pdf
 German: https://github.com/Lunyr/Lunyr/blob/master/Lunyr_Crowdsale_Instructions_Parity-Mist-MyEtherWallet_GER.pdf
 Russian: https://github.com/Lunyr/Lunyr/blob/master/Lunyr_Crowdsale_Instructions_Parity-Mist-MyEtherWallet_RUS.pdf
-Chinese: In progress
+Chinese: https://github.com/Lunyr/Lunyr/blob/master/Lunyr_Crowdsale_Instructions_Parity-Mist-MyEtherWallet_CN.pdf
 
 Download link for Parity: https://parity.io/parity.html
 Download link for Mist: https://github.com/ethereum/mist/releases
