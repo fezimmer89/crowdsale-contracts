@@ -2,7 +2,7 @@ Please do not try to send ETH directly to the Lunyr Token address. It will not w
 You have to follow the instructions to execute create().
 
 Crowdsale Instructions
-English: https://github.com/Lunyr/Lunyr/blob/master/Lunyr_Crowdsale_Instructions_Parity-Mist-MyEtherWallet.pdf
+English: https://medium.com/lunyr/lunyr-crowdsale-instructions-e0cf3cec4024
 German: https://github.com/Lunyr/Lunyr/blob/master/Lunyr_Crowdsale_Instructions_Parity-Mist-MyEtherWallet_GER.pdf
 Russian: https://github.com/Lunyr/Lunyr/blob/master/Lunyr_Crowdsale_Instructions_Parity-Mist-MyEtherWallet_RUS.pdf
 Chinese: https://github.com/Lunyr/Lunyr/blob/master/Lunyr_Crowdsale_Instructions_Parity-Mist-MyEtherWallet_CN.pdf
