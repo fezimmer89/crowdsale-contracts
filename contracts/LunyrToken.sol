@@ -30,7 +30,7 @@ contract LUNVault is SafeMath {
 
     /// @notice Constructor function sets the Lunyr Multisig address and
     /// total number of locked tokens to transfer
-    function LUNVault(address _lunyrMultisig) internal {
+    function LUNVault(address _lunyrMultisig) {
         if (_lunyrMultisig == 0x0) throw;
         lunyrToken = LunyrToken(msg.sender);
         lunyrMultisig = _lunyrMultisig;
@@ -82,8 +82,8 @@ contract LunyrToken is SafeMath, ERC20 {
     uint256 public fundingStartBlock; // crowdsale start block
     uint256 public fundingEndBlock; // crowdsale end block
     uint256 public constant tokensPerEther = 44; // LUN:ETH exchange rate
-    uint256 public constant tokenCreationMax = safeMul(250000 ether, tokensPerEther);
-    uint256 public constant tokenCreationMin = safeMul(25000 ether, tokensPerEther);
+    uint256 public constant tokenCreationMax = 250000 ether * tokensPerEther;
+    uint256 public constant tokenCreationMin = 25000 ether * tokensPerEther;
     // for testing on testnet
     //uint256 public constant tokenCreationMax = safeMul(10 ether, tokensPerEther);
     //uint256 public constant tokenCreationMin = safeMul(3 ether, tokensPerEther);

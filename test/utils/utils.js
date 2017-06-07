@@ -34,7 +34,8 @@ module.exports = {
     return promise.then(function() {
       assert.isNotOk(true, err);
     }).catch(function(e) {
-      assert.include(e.message, 'invalid JUMP', "Invalid Jump error didn't occur");
+      //assert.include(e.message, 'invalid JUMP', "Invalid Jump error didn't occur");
+      assert.include(e.message, 'invalid opcode', "Invalid opcode error didn't occur");
     });
   },
   getFunctionSelector: function(functionSignature) {
