@@ -1,6 +1,6 @@
-# Lunyr Contracts
+# Dubbel Contracts
 
-This is the official repository for the crowdsale of Lunyr tokens.
+This is the official repository for the crowdsale of Dubbel tokens.
 
 
 We use SafeMath.sol and ERC20.sol from Zeppelin (thanks!)
@@ -14,7 +14,7 @@ Instructions
 -------------
 1. Open a terminal
 2. [Install npm](http://lmgtfy.com/?q=how+to+install+npm)
-3. Clone the repository "git clone https://github.com/Lunyr/crowdsale-contracts.git"
+3. Clone the repository "git clone https://github.com/fezimmer/dubbel-crowdsale.git"
 4. In the repository, run "npm install"
 5. Run testrpc (see below)
 6. In another terminal, run "truffle test"
@@ -28,7 +28,7 @@ testrpc --testnet --account=0x10241024102410241024102410241024102410241024102410
 If you don't want to run all the tests, you can just run individual ones
 
 ```
-truffle test ./test/LunyrToken.js
+truffle test ./test/DubbelToken.js
 ```
 
 If you want to test on the testnet, do the following:
@@ -46,6 +46,6 @@ If you want to test on the testnet, do the following:
 
 Or just use our existing contracts on the testnet:
 
-Multisig Wallet: 0x90321a0b97ee9cdf78c2428ae826b8a0e6c7af8a
+Multisig Wallet: (tbd)
 
-Lunyr Token: 0x6c6c2747e3753654f7654b566888417c135fe9cc
+Dubbel Token: (tbd)

@@ -1,7 +1,7 @@
 {
-  "name": "lunyr-crowdsale",
+  "name": "dubbel-crowdsale",
   "version": "0.0.1",
-  "description": "Lunyr Token Crowdsale",
+  "description": "Crowdsale contract supporting the Dubbel ICO",
   "directories": {
     "test": "test"
   },
@@ -11,7 +11,7 @@
     "ethereumjs-testrpc": "^3.0.3",
     "truffle": "^3.1.2"
   },
-  "author": "Lunyr",
+  "author": "fezimmer89",
   "dependencies": {
     "global": "^4.3.1"
   }

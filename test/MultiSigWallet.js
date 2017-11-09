@@ -1,6 +1,6 @@
 let utils = require("./utils/utils.js");
 let MultiSigWallet = artifacts.require("./MultiSigWallet.sol");
-let LunyrToken = artifacts.require('LunyrToken');
+let DubbelToken = artifacts.require('DubbelToken');
 
 
 contract('MultiSigWallet', function(accounts){
@@ -191,7 +191,7 @@ contract('MultiSigWallet', function(accounts){
       const upgradeMaster = accounts[0];
       const startBlock = web3.eth.blockNumber + 10;
       const endBlock = startBlock + 1;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(instance){
       token = instance;
       return MultiSigWallet.new(accounts, 2);
@@ -210,7 +210,7 @@ contract('MultiSigWallet', function(accounts){
       assert.equal(receipt.logs.length, 2);
       assert.equal(receipt.logs[0].event,'Confirmation');
       assert.equal(receipt.logs[1].event,'Execution');
-      return token.lunyrMultisig();
+      return token.dubbelMultisig();
     }).then(function(walletAddr){
       assert.equal(walletAddr, newWallet.address);
       assert.notEqual(wallet.address, walletAddr);

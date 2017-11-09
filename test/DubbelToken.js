@@ -1,4 +1,4 @@
-// Tests for LunyrToken.sol
+// Tests for DubbelToken.sol
 // One contract for each state in our state machine
 // At least one "it" for each function call
 // States: Before Crowdsale, During Crowdsale, Successful Crowdsale, Failed Crowdsale, Update
@@ -7,8 +7,8 @@
 let utils = require("./utils/utils.js");
 
 // contracts
-let LunyrToken = artifacts.require('LunyrToken');
-let LUNVault = artifacts.require('LUNVault');
+let DubbelToken = artifacts.require('DubbelToken');
+let DUBVault = artifacts.require('DUBVault');
 let MultiSigWallet = artifacts.require('MultiSigWallet');
 let UpgradeAgent = artifacts.require('UpgradeAgent');
 let NewToken = artifacts.require('NewToken');
@@ -26,10 +26,10 @@ contract('Crowdsale', function(accounts){
       upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 10;
       endBlock = startBlock + 1;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(instance){
       token = instance;
-      return utils.assertThrows(LunyrToken.new(accounts[0], upgradeMaster, startBlock, endBlock), 'cannot create token with fake wallet');
+      return utils.assertThrows(DubbelToken.new(accounts[0], upgradeMaster, startBlock, endBlock), 'cannot create token with fake wallet');
     }).then(function(){
       return token.getState();
     }).then(function(state){
@@ -41,7 +41,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       const startBlock = web3.eth.blockNumber + 10;
       const endBlock = startBlock + 1;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.assertThrows(token.transfer(accounts[0], 1), "expected transfer to fail");
     }).then(done).catch(done);
@@ -51,7 +51,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       const startBlock = web3.eth.blockNumber + 10;
       const endBlock = startBlock + 1;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.assertThrows(token.transferFrom(accounts[0], accounts[1], 1), "expected transferFrom to fail");
     }).then(done).catch(done);
@@ -61,7 +61,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = web3.eth.accounts[0];
       const startBlock = web3.eth.blockNumber + 10;
       const endBlock = startBlock + 1;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       return utils.assertThrows(token.upgrade(accounts[0], 1), "expected upgrade to fail");
     }).then(done).catch(done);
@@ -71,7 +71,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = web3.eth.accounts[0];
       const startBlock = web3.eth.blockNumber + 10;
       const endBlock = startBlock + 1;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       return utils.assertThrows(token.approve(accounts[0], 1), "expected approve to fail");
     }).then(done).catch(done);
@@ -81,7 +81,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       const startBlock = web3.eth.blockNumber + 10;
       const endBlock = startBlock + 1;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       return utils.assertThrows(token.setUpgradeAgent(accounts[0]), "expected setUpgradeAgent to fail");
     }).then(done).catch(done);
@@ -91,7 +91,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       const startBlock = web3.eth.blockNumber + 10;
       const endBlock = startBlock + 1;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       return utils.assertThrows(token.setUpgradeMaster(accounts[1]), "expected setUpgradeMaster to fail");
     }).then(done).catch(done);
@@ -101,7 +101,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       const startBlock = web3.eth.blockNumber + 10;
       const endBlock = startBlock + 1;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       return utils.assertThrows(token.create(), "expected create to fail");
     }).then(done).catch(done);
@@ -111,7 +111,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       const startBlock = web3.eth.blockNumber + 10;
       const endBlock = startBlock + 1;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       return utils.assertThrows(token.refund(), "expected refund to fail");
     }).then(done).catch(done);
@@ -121,7 +121,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       const startBlock = web3.eth.blockNumber + 10;
       const endBlock = startBlock + 1;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       return utils.assertThrows(token.finalizeCrowdfunding(), "expected finalizeCrowdfunding to fail");
     }).then(done).catch(done);
@@ -131,7 +131,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       const startBlock = web3.eth.blockNumber + 10;
       const endBlock = startBlock + 1;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       return token.totalSupply();
     }).then(function(supply){
@@ -143,7 +143,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       const startBlock = web3.eth.blockNumber + 10;
       const endBlock = startBlock + 1;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       for (let i = 0; i < accounts.length; i++){
         token.balanceOf(accounts[i]).then(function(balance){
@@ -157,7 +157,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       const startBlock = web3.eth.blockNumber + 10;
       const endBlock = startBlock + 1;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       return utils.assertThrows(token.approve(accounts[0],1), "expected approve to fail");
     }).then(done).catch(done);
@@ -167,7 +167,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       const startBlock = web3.eth.blockNumber + 10;
       const endBlock = startBlock + 1;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       for (let i = 0; i < accounts.length; i++){
         for (let j = 0; j < accounts.length; j++){
@@ -189,7 +189,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 10;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(startBlock);
       return token.getState();
@@ -202,7 +202,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       const startBlock = web3.eth.blockNumber + 2;
       const endBlock = startBlock + 10;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineOneBlock();
       utils.mineOneBlock();
@@ -214,7 +214,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       const startBlock = web3.eth.blockNumber + 2;
       const endBlock = startBlock + 10;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineOneBlock();
       utils.mineOneBlock();
@@ -226,7 +226,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = web3.eth.accounts[0];
       const startBlock = web3.eth.blockNumber + 2;
       const endBlock = startBlock + 10;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineOneBlock();
       utils.mineOneBlock();
@@ -238,7 +238,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = web3.eth.accounts[0];
       const startBlock = web3.eth.blockNumber + 2;
       const endBlock = startBlock + 10;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineOneBlock();
       utils.mineOneBlock();
@@ -250,7 +250,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       const startBlock = web3.eth.blockNumber + 2;
       const endBlock = startBlock + 10;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineOneBlock();
       utils.mineOneBlock();
@@ -262,7 +262,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       const startBlock = web3.eth.blockNumber + 2;
       const endBlock = startBlock + 10;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineOneBlock();
       utils.mineOneBlock();
@@ -274,7 +274,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       const startBlock = web3.eth.blockNumber + 2;
       const endBlock = startBlock + 10;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineOneBlock();
       utils.mineOneBlock();
@@ -288,7 +288,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 10;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(startBlock);
       return token.tokenCreationMax().then(function(tokenMax){
@@ -309,7 +309,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 10;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(startBlock);
       return utils.assertThrows(token.refund(), "expected refund to fail");
@@ -322,7 +322,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 10;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(startBlock);
       utils.assertThrows(token.finalizeCrowdfunding(), "expected finalizeCrowdfunding to fail");
@@ -335,7 +335,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 10;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(startBlock);
       // create some tokens
@@ -355,7 +355,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 10;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(startBlock);
       // create some tokens
@@ -375,7 +375,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 10;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(startBlock);
       utils.assertThrows(token.approve(accounts[0],1), "expected approve to fail");
@@ -388,7 +388,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 10;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(startBlock);
       for (let i = 0; i < accounts.length; i++){
@@ -411,7 +411,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(startBlock);
       return token.tokenCreationMax().then(function(tokenMax){
@@ -437,7 +437,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(startBlock);
       return token.tokenCreationMin().then(function(tokenMin){
@@ -464,7 +464,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(startBlock);
       return token.tokenCreationMin().then(function(tokenMin){
@@ -500,7 +500,7 @@ contract('Crowdsale', function(accounts){
       agentOwner = upgradeMaster;
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(instance){
       token = instance;
       utils.mineToBlockHeight(startBlock);
@@ -669,7 +669,7 @@ contract('Crowdsale', function(accounts){
       agentOwner = upgradeMaster;
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(instance){
       token = instance;
       utils.mineToBlockHeight(startBlock);
@@ -719,7 +719,7 @@ contract('Crowdsale', function(accounts){
       upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(startBlock);
       return token.tokenCreationMin().then(function(tokenMin){
@@ -751,7 +751,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(startBlock);
       return token.tokenCreationMin().then(function(tokenMin){
@@ -776,7 +776,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(startBlock);
       return token.tokenCreationMin().then(function(tokenMin){
@@ -801,7 +801,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(startBlock);
       return token.tokenCreationMin().then(function(tokenMin){
@@ -828,7 +828,7 @@ contract('Crowdsale', function(accounts){
        wallet = instance;
        startBlock = web3.eth.blockNumber + 2;
        endBlock = startBlock + 4;
-       return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+       return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
      }).then(function(instance){
        token = instance;
        utils.mineToBlockHeight(startBlock);
@@ -845,7 +845,7 @@ contract('Crowdsale', function(accounts){
        assert.equal(receipt.logs[0].event,'Transfer');
        return token.timeVault();
      }).then(function(vaultAddress){
-       return LUNVault.at(vaultAddress);
+       return DUBVault.at(vaultAddress);
      }).then(function(v){
        vault = v;
        return token.balanceOf(vault.address);
@@ -929,7 +929,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(startBlock);
       return token.tokenCreationMax().then(function(tokenMax){
@@ -941,7 +941,7 @@ contract('Crowdsale', function(accounts){
           // success, this creates a 22% endowment
           return token.finalizeCrowdfunding();
         }).then(function(){
-          // totalSupply is in LUN-wei == 11 * wei
+          // totalSupply is in DUB-wei == 11 * wei
           return token.totalSupply();
         }).then(function(actualSupply){
           assert(actualSupply.mul(0.78).sub(tokenMax).lt(utils.diffEpsilon));
@@ -957,7 +957,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(startBlock);
       return token.tokenCreationMin().then(function(tokenMin){
@@ -1014,7 +1014,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(endBlock + 1);
       // failure
@@ -1033,7 +1033,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(startBlock);
       initialBalance = web3.eth.getBalance(refundee);
@@ -1063,7 +1063,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(startBlock);
       token.create({ from:accounts[0], value: 1 }).then(function(){
@@ -1080,7 +1080,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       utils.mineToBlockHeight(startBlock);
       token.create({ from:accounts[0], value: 1 }).then(function(){
@@ -1097,7 +1097,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       // failure
       utils.mineToBlockHeight(endBlock + 1);
@@ -1112,7 +1112,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       // failure
       utils.mineToBlockHeight(endBlock + 1);
@@ -1127,7 +1127,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       // failure
       utils.mineToBlockHeight(endBlock + 1);
@@ -1142,7 +1142,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       // failure
       utils.mineToBlockHeight(endBlock + 1);
@@ -1157,7 +1157,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(token){
       // failure
       utils.mineToBlockHeight(endBlock + 1);
@@ -1174,7 +1174,7 @@ contract('Crowdsale', function(accounts){
       const upgradeMaster = accounts[0];
       startBlock = web3.eth.blockNumber + 2;
       endBlock = startBlock + 4;
-      return LunyrToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
+      return DubbelToken.new(wallet.address, upgradeMaster, startBlock, endBlock);
     }).then(function(instance){
       token = instance;
       utils.mineToBlockHeight(startBlock);

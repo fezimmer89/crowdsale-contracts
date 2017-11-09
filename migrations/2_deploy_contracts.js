@@ -2,14 +2,14 @@ let utils = require("../test/utils/utils.js");
 utils.setWeb3(web3);
 
 let MultiSigWallet = artifacts.require("MultiSigWallet");
-let LunyrToken = artifacts.require("LunyrToken");
+let DubbelToken = artifacts.require("DubbelToken");
 let NewToken = artifacts.require("NewToken");
 let UpgradeAgent = artifacts.require("UpgradeAgent");
-let LUNVault = artifacts.require("LUNVault");
+let DUBVault = artifacts.require("DUBVault");
 
 
 module.exports = function(deployer, network) {
-  let lunyrMultisig;
+  let dubbelMultisig;
   let upgradeMaster, agentOwner;
   let startBlock, endBlock;
   let accounts = web3.eth.accounts.slice(0,3);
@@ -20,12 +20,12 @@ module.exports = function(deployer, network) {
       wallet = instance;
       upgradeMaster = web3.eth.accounts[0];
       agentOwner = upgradeMaster;
-      lunyrMultisig = MultiSigWallet.address;
+      dubbelMultisig = MultiSigWallet.address;
       startBlock = web3.eth.blockNumber + 10;
       endBlock = web3.eth.blockNumber + 20000;
-      return deployer.deploy(LunyrToken, lunyrMultisig, upgradeMaster, startBlock, endBlock);
+      return deployer.deploy(DubbelToken, dubbelMultisig, upgradeMaster, startBlock, endBlock);
     }).then(function(instance){
-      return LunyrToken.deployed();
+      return DubbelToken.deployed();
     }).then(function(instance){
       token = instance;
     //   functionData = utils.getFunctionEncoding('UpgradeAgent(address)',[token.address]);
@@ -53,12 +53,12 @@ module.exports = function(deployer, network) {
       wallet = instance;
       upgradeMaster = web3.eth.accounts[0];
       agentOwner = upgradeMaster;
-      lunyrMultisig = MultiSigWallet.address;
+      dubbelMultisig = MultiSigWallet.address;
       startBlock = startBlockMainNet;
       endBlock = endBlockMainNet;
-      return deployer.deploy(LunyrToken, lunyrMultisig, upgradeMaster, startBlock, endBlock);
+      return deployer.deploy(DubbelToken, dubbelMultisig, upgradeMaster, startBlock, endBlock);
     }).then(function(instance){
-      return LunyrToken.deployed();
+      return DubbelToken.deployed();
     }).then(function(instance){
       token = instance;
     //   functionData = utils.getFunctionEncoding('UpgradeAgent(address)',[token.address]);

@@ -15,58 +15,58 @@ contract UpgradeAgent is SafeMath {
   function upgradeFrom(address _from, uint256 _value) public;
 }
 
-/// @title Time-locked vault of tokens allocated to Lunyr after 180 days
-contract LUNVault is SafeMath {
+/// @title Time-locked vault of tokens allocated to Dubbel after 180 days
+contract DUBVault is SafeMath {
 
     // flag to determine if address is for a real contract or not
-    bool public isLUNVault = false;
+    bool public isDUBVault = false;
 
-    LunyrToken lunyrToken;
-    address lunyrMultisig;
+    DubbelToken dubbelToken;
+    address dubbelMultisig;
     uint256 unlockedAtBlockNumber;
     //uint256 public constant numBlocksLocked = 1110857;
     // smaller lock for testing
     uint256 public constant numBlocksLocked = 1110857;
 
-    /// @notice Constructor function sets the Lunyr Multisig address and
+    /// @notice Constructor function sets the Dubbel Multisig address and
     /// total number of locked tokens to transfer
-    function LUNVault(address _lunyrMultisig) {
-        if (_lunyrMultisig == 0x0) throw;
-        lunyrToken = LunyrToken(msg.sender);
-        lunyrMultisig = _lunyrMultisig;
-        isLUNVault = true;
+    function DUBVault(address _dubbelMultisig) {
+        if (_dubbelMultisig == 0x0) throw;
+        dubbelToken = DubbelToken(msg.sender);
+        dubbelMultisig = _dubbelMultisig;
+        isDUBVault = true;
         unlockedAtBlockNumber = safeAdd(block.number, numBlocksLocked); // 180 days of blocks later
     }
 
-    /// @notice Transfer locked tokens to Lunyr's multisig wallet
+    /// @notice Transfer locked tokens to Dubbel's multisig wallet
     function unlock() external {
         // Wait your turn!
         if (block.number < unlockedAtBlockNumber) throw;
         // Will fail if allocation (and therefore toTransfer) is 0.
-        if (!lunyrToken.transfer(lunyrMultisig, lunyrToken.balanceOf(this))) throw;
+        if (!dubbelToken.transfer(dubbelMultisig, dubbelToken.balanceOf(this))) throw;
     }
 
-    // disallow payment this is for LUN not ether
+    // disallow payment this is for DUB not ether
     function () { throw; }
 
 }
 
-/// @title Lunyr crowdsale contract
-contract LunyrToken is SafeMath, ERC20 {
+/// @title Dubbel crowdsale contract
+contract DubbelToken is SafeMath, ERC20 {
 
     // flag to determine if address is for a real contract or not
-    bool public isLunyrToken = false;
+    bool public isDubbelToken = false;
 
     // State machine
     enum State{PreFunding, Funding, Success, Failure}
 
     // Token information
-    string public constant name = "Lunyr Token";
-    string public constant symbol = "LUN";
+    string public constant name = "Dubbel Token";
+    string public constant symbol = "DUB";
     uint256 public constant decimals = 18;  // decimal places
     uint256 public constant crowdfundPercentOfTotal = 78;
     uint256 public constant vaultPercentOfTotal = 15;
-    uint256 public constant lunyrPercentOfTotal = 7;
+    uint256 public constant dubbelPercentOfTotal = 7;
     uint256 public constant hundredPercent = 100;
 
     mapping (address => uint256) balances;
@@ -81,15 +81,15 @@ contract LunyrToken is SafeMath, ERC20 {
     bool public finalizedCrowdfunding = false;
     uint256 public fundingStartBlock; // crowdsale start block
     uint256 public fundingEndBlock; // crowdsale end block
-    uint256 public constant tokensPerEther = 44; // LUN:ETH exchange rate
+    uint256 public constant tokensPerEther = 44; // DUB:ETH exchange rate
     uint256 public constant tokenCreationMax = 250000 ether * tokensPerEther;
     uint256 public constant tokenCreationMin = 25000 ether * tokensPerEther;
     // for testing on testnet
     //uint256 public constant tokenCreationMax = safeMul(10 ether, tokensPerEther);
     //uint256 public constant tokenCreationMin = safeMul(3 ether, tokensPerEther);
 
-    address public lunyrMultisig;
-    LUNVault public timeVault; // Lunyr's time-locked vault
+    address public dubbelMultisig;
+    DUBVault public timeVault; // Dubbel's time-locked vault
 
     event Upgrade(address indexed _from, address indexed _to, uint256 _value);
     event Refund(address indexed _from, uint256 _value);
@@ -97,35 +97,35 @@ contract LunyrToken is SafeMath, ERC20 {
     event UpgradeAgentSet(address agent);
 
     // For mainnet, startBlock = 3445888, endBlock = 3618688
-    function LunyrToken(address _lunyrMultisig,
+    function DubbelToken(address _dubbelMultisig,
                         address _upgradeMaster,
                         uint256 _fundingStartBlock,
                         uint256 _fundingEndBlock) {
 
-        if (_lunyrMultisig == 0) throw;
+        if (_dubbelMultisig == 0) throw;
         if (_upgradeMaster == 0) throw;
         if (_fundingStartBlock <= block.number) throw;
         if (_fundingEndBlock   <= _fundingStartBlock) throw;
-        isLunyrToken = true;
+        isDubbelToken = true;
         upgradeMaster = _upgradeMaster;
         fundingStartBlock = _fundingStartBlock;
         fundingEndBlock = _fundingEndBlock;
-        timeVault = new LUNVault(_lunyrMultisig);
-        if (!timeVault.isLUNVault()) throw;
-        lunyrMultisig = _lunyrMultisig;
-        if (!MultiSigWallet(lunyrMultisig).isMultiSigWallet()) throw;
+        timeVault = new DUBVault(_dubbelMultisig);
+        if (!timeVault.isDUBVault()) throw;
+        dubbelMultisig = _dubbelMultisig;
+        if (!MultiSigWallet(dubbelMultisig).isMultiSigWallet()) throw;
     }
 
     function balanceOf(address who) constant returns (uint) {
         return balances[who];
     }
 
-    /// @notice Transfer `value` LUN tokens from sender's account
+    /// @notice Transfer `value` DUB tokens from sender's account
     /// `msg.sender` to provided account address `to`.
     /// @notice This function is disabled during the funding.
     /// @dev Required state: Success
     /// @param to The address of the recipient
-    /// @param value The number of LUN to transfer
+    /// @param value The number of DUB to transfer
     /// @return Whether the transfer was successful or not
     function transfer(address to, uint256 value) returns (bool ok) {
         if (getState() != State.Success) throw; // Abort if crowdfunding was not a success.
@@ -143,13 +143,13 @@ contract LunyrToken is SafeMath, ERC20 {
         return false;
     }
 
-    /// @notice Transfer `value` LUN tokens from sender 'from'
+    /// @notice Transfer `value` DUB tokens from sender 'from'
     /// to provided account address `to`.
     /// @notice This function is disabled during the funding.
     /// @dev Required state: Success
     /// @param from The address of the sender
     /// @param to The address of the recipient
-    /// @param value The number of LUN to transfer
+    /// @param value The number of DUB to transfer
     /// @return Whether the transfer was successful or not
     function transferFrom(address from, address to, uint value) returns (bool ok) {
         if (getState() != State.Success) throw; // Abort if not in Success state.
@@ -216,7 +216,7 @@ contract LunyrToken is SafeMath, ERC20 {
         if (msg.sender != upgradeMaster) throw; // Only a master can designate the next agent
         if (address(upgradeAgent) != 0x0 && upgradeAgent.upgradeHasBegun()) throw; // Don't change the upgrade agent
         upgradeAgent = UpgradeAgent(agent);
-        // upgradeAgent must be created and linked to LunyrToken after crowdfunding is over
+        // upgradeAgent must be created and linked to DubbelToken after crowdfunding is over
         if (upgradeAgent.originalSupply() != totalSupply) throw;
         UpgradeAgentSet(upgradeAgent);
     }
@@ -233,10 +233,10 @@ contract LunyrToken is SafeMath, ERC20 {
     }
 
     function setMultiSigWallet(address newWallet) external {
-      if (msg.sender != lunyrMultisig) throw;
+      if (msg.sender != dubbelMultisig) throw;
       MultiSigWallet wallet = MultiSigWallet(newWallet);
       if (!wallet.isMultiSigWallet()) throw;
-      lunyrMultisig = newWallet;
+      dubbelMultisig = newWallet;
     }
 
     // Crowdfunding:
@@ -275,8 +275,8 @@ contract LunyrToken is SafeMath, ERC20 {
 
     /// @notice Finalize crowdfunding
     /// @dev If cap was reached or crowdfunding has ended then:
-    /// create LUN for the Lunyr Multisig and developer,
-    /// transfer ETH to the Lunyr Multisig address.
+    /// create DUB for the Dubbel Multisig and developer,
+    /// transfer ETH to the Dubbel Multisig address.
     /// @dev Required state: Success
     function finalizeCrowdfunding() external {
         // Abort if not in Funding Success state.
@@ -292,15 +292,15 @@ contract LunyrToken is SafeMath, ERC20 {
         balances[timeVault] = safeAdd(balances[timeVault], vaultTokens);
         Transfer(0, timeVault, vaultTokens);
 
-        // Endowment: 7% of total goes to lunyr for marketing and bug bounty
-        uint256 lunyrTokens = safeDiv(safeMul(totalSupply, lunyrPercentOfTotal), crowdfundPercentOfTotal);
-        balances[lunyrMultisig] = safeAdd(balances[lunyrMultisig], lunyrTokens);
-        Transfer(0, lunyrMultisig, lunyrTokens);
+        // Endowment: 7% of total goes to dubbel for marketing and bug bounty
+        uint256 dubbelTokens = safeDiv(safeMul(totalSupply, dubbelPercentOfTotal), crowdfundPercentOfTotal);
+        balances[dubbelMultisig] = safeAdd(balances[dubbelMultisig], dubbelTokens);
+        Transfer(0, dubbelMultisig, dubbelTokens);
 
-        totalSupply = safeAdd(safeAdd(totalSupply, vaultTokens), lunyrTokens);
+        totalSupply = safeAdd(safeAdd(totalSupply, vaultTokens), dubbelTokens);
 
-        // Transfer ETH to the Lunyr Multisig address.
-        if (!lunyrMultisig.send(this.balance)) throw;
+        // Transfer ETH to the Dubbel Multisig address.
+        if (!dubbelMultisig.send(this.balance)) throw;
     }
 
     /// @notice Get back the ether sent during the funding in case the funding

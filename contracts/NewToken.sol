@@ -1,12 +1,12 @@
 pragma solidity ^0.4.8;
 
-//import './LunyrToken.sol';
+//import './DubbelToken.sol';
 import './ERC20.sol';
 import './SafeMath.sol';
 
 contract OldToken is ERC20 {
     // flag to determine if address is for a real contract or not
-    bool public isLunyrToken;
+    bool public isDubbelToken;
 }
 
 contract NewToken is ERC20, SafeMath {
@@ -118,7 +118,7 @@ contract UpgradeAgent is SafeMath {
     /// @notice Check to make sure that the current sum of old and
     /// new version tokens is still equal to the original number of old version
     /// tokens
-    /// @param _value The number of LUN to upgrade
+    /// @param _value The number of DUB to upgrade
     function safetyInvariantCheck(uint256 _value) public {
         if (!newToken.isNewToken()) throw; // Abort if new token contract has not been set
         uint oldSupply = oldToken.totalSupply();
@@ -160,7 +160,7 @@ contract UpgradeAgent is SafeMath {
 
         setUpgradeHasBegun();
         // Right here oldToken has already been updated, but corresponding
-        // LUN have not been created in the newToken contract yet
+        // DUB have not been created in the newToken contract yet
         safetyInvariantCheck(_value);
 
         newToken.createToken(_from, _value);
